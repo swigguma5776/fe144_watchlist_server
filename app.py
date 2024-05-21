@@ -91,15 +91,26 @@ def update_watchlist(id):
             if result is None:
                 return jsonify({"error": "Customer Not Found"}), 404
             watchlist = result
-
+            watchlist_data = {
+                "id": result.id,
+                "original_title": result.original_title,
+                "overview": result.overview,
+                "genres": result.genres,
+                "popularity": result.popularity,
+                "release_date": result.release_date,
+                "poster_path": result.poster_path,
+                "review": result.review
+            }
             try:
-                watchlist_data = watchlist_schema.load(request.json)
+                watchlist_data = watchlist_schema.load(watchlist_data)
             except ValidationError as err:
+                print(err.messages)
                 return jsonify(err.messages), 400
             
-            for field, value in watchlist_data.items():
+            for field, value in request.json.items():
                 setattr(watchlist, field, value)
-
+                
+            
             session.commit()
     return jsonify({"message": "Customer details updated succesfully"}), 200
 
